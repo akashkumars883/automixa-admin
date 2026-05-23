@@ -18,7 +18,6 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
     { name: "Workspaces", href: "/admin/workspaces", icon: Briefcase },
     { name: "Automations", href: "/admin/automations", icon: Bot },
     { name: "Analytics", href: "/admin/analytics", icon: LineChart },
-    { name: "AI Control", href: "/admin/ai-control", icon: BrainCircuit },
     { name: "Templates", href: "/admin/templates", icon: FileText },
     { name: "Support", href: "/admin/support", icon: LifeBuoy },
     { name: "Marketing", href: "/admin/marketing", icon: Megaphone },

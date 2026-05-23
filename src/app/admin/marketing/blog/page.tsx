@@ -15,7 +15,7 @@ export default async function AdminBlogPage() {
   const supabase = createAdminClient();
 
   const { data: posts, error } = await supabase
-    .from("blog_posts")
+    .from("blogs")
     .select("*")
     .order("created_at", { ascending: false });
 

@@ -17,7 +17,7 @@ export default async function AdminAnalyticsPage() {
   // Fetch real automation history
   const { data: history, error } = await supabase
     .from("automation_history")
-    .select("status, created_at")
+    .select("status, created_at, automation_id")
     .limit(1000); // Last 1000 for realistic calc
 
   if (error && error.code !== "42P01") {
@@ -36,13 +36,23 @@ export default async function AdminAnalyticsPage() {
   });
   const engagementData = Object.keys(statusCounts).map(k => ({ name: k, value: statusCounts[k] }));
 
-  // Simulate timing/conversion from history (dummy processing for now since we just need shape)
-  // In reality, this would group by day from `created_at`
-  const conversionData = [
-    { name: "Mon", count: 10 },
-    { name: "Tue", count: 20 },
-    { name: "Wed", count: successes },
-  ];
+  // Group by day of week for trends
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dayCounts: Record<string, number> = { "Sun": 0, "Mon": 0, "Tue": 0, "Wed": 0, "Thu": 0, "Fri": 0, "Sat": 0 };
+  
+  logs.forEach(l => {
+    if (l.created_at) {
+      const date = new Date(l.created_at);
+      const day = daysOfWeek[date.getDay()];
+      dayCounts[day] += 1;
+    }
+  });
+
+  const conversionData = daysOfWeek.map(day => ({ name: day, count: dayCounts[day] }));
+
+  // Calculate unique automations as a proxy for Unique Leads
+  const uniqueLeads = new Set(logs.map(l => l.automation_id).filter(Boolean)).size.toString();
+  const linkClicks = "0";
 
   return (
     <div>
@@ -54,6 +64,8 @@ export default async function AdminAnalyticsPage() {
       <AnalyticsClient 
         totalMessages={totalMessages}
         successRate={successRate}
+        linkClicks={linkClicks}
+        uniqueLeads={uniqueLeads}
         conversionData={conversionData}
         engagementData={engagementData}
         messageTimingData={[]}

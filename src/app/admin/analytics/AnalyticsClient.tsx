@@ -6,12 +6,16 @@ import { MessageSquare, MousePointerClick, TrendingUp, Users } from "lucide-reac
 export default function AnalyticsClient({ 
   totalMessages,
   successRate,
+  linkClicks,
+  uniqueLeads,
   conversionData,
   engagementData,
   messageTimingData
 }: {
   totalMessages: string;
   successRate: string;
+  linkClicks: string;
+  uniqueLeads: string;
   conversionData: any[];
   engagementData: any[];
   messageTimingData: any[];
@@ -24,8 +28,8 @@ export default function AnalyticsClient({
         {[
           { title: "Messages Sent", value: totalMessages, icon: MessageSquare, color: "text-blue-400" },
           { title: "Success Rate", value: successRate, icon: TrendingUp, color: "text-emerald-400" },
-          { title: "Link Clicks", value: "Pending (No Meta Data)", icon: MousePointerClick, color: "text-slate-600" },
-          { title: "Unique Leads", value: "Pending", icon: Users, color: "text-slate-600" },
+          { title: "Link Clicks", value: linkClicks, icon: MousePointerClick, color: "text-slate-600" },
+          { title: "Unique Leads", value: uniqueLeads, icon: Users, color: "text-slate-600" },
         ].map((stat, i) => (
           <div key={i} className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-xl shadow-2xl">
             <div className="flex items-center justify-between">
