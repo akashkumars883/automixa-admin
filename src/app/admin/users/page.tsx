@@ -1,0 +1,89 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { ADMIN_COOKIE_NAME, getAdminSessionToken } from "@/lib/adminAuth";
+import { createAdminClient } from "@/lib/supabase";
+import ModalTrigger from "@/components/admin/ModalTrigger";
+
+export default async function AdminUsersPage() {
+  const cookieStore = await cookies();
+  const token = getAdminSessionToken();
+  const existing = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
+  if (!token || existing !== token) {
+    redirect("/admin/login");
+  }
+
+  const supabase = createAdminClient();
+
+  // Fetch users using the Admin API (requires Service Role Key)
+  const { data: authData, error } = await supabase.auth.admin.listUsers();
+
+  if (error) {
+    return (
+      <div className="mt-6 rounded-lg border border-red-900 bg-red-950/40 px-3 py-2 text-sm text-red-200">
+        Failed to load users from Auth. {error.message}
+      </div>
+    );
+  }
+
+  const users = authData?.users || [];
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-white">Users</h1>
+        <p className="mt-1 text-slate-400">Manage all registered Automixa users ({users.length} total).</p>
+      </div>
+
+      <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 lg:p-6 backdrop-blur-xl shadow-2xl">
+        <div className="overflow-x-auto p-1">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-slate-800 bg-slate-900/50">
+              <tr className="text-slate-300">
+                <th className="px-4 py-3 font-medium">Email</th>
+                <th className="px-4 py-3 font-medium">ID</th>
+                <th className="px-4 py-3 font-medium">Last Sign In</th>
+                <th className="px-4 py-3 font-medium">Created At</th>
+                <th className="px-4 py-3 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/50">
+              {users.map((user) => (
+                <tr key={user.id} className="transition-colors hover:bg-slate-800/50 group">
+                  <td className="px-4 py-3 font-medium text-slate-200">{user.email || "No email"}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-400">{user.id}</td>
+                  <td className="px-4 py-3 text-slate-300">
+                    {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : "Never"}
+                  </td>
+                  <td className="px-4 py-3 text-slate-300">
+                    {user.created_at ? new Date(user.created_at).toLocaleString() : "-"}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                     <ModalTrigger
+                       buttonText="View Details"
+                       title="User Details"
+                       message={`Viewing full profile and activity logs for user ${user.id}.`}
+                       className="text-xs font-medium text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-indigo-300 mr-3"
+                     />
+                     <ModalTrigger
+                       buttonText="Suspend"
+                       title="Suspend User"
+                       message={`Are you sure you want to suspend user ${user.email}? They will immediately lose access to their account.`}
+                       className="text-xs font-medium text-red-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-300"
+                     />
+                  </td>
+                </tr>
+              ))}
+              {!users.length && (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+                    No users found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
