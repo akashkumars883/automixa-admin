@@ -15,7 +15,7 @@ export default async function AdminUsersPage() {
   const supabase = createAdminClient();
 
   // Fetch users using the Admin API (requires Service Role Key)
-  const { data: authData, error } = await supabase.auth.admin.listUsers();
+  const { data: authData, error } = await supabase.auth.admin.listUsers({ perPage: 1000 });
 
   if (error) {
     return (

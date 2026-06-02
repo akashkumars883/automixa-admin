@@ -17,7 +17,7 @@ export default async function AdminHistoryPage() {
     .from("automation_history")
     .select("id,automation_id,status,created_at,error_message")
     .order("created_at", { ascending: false })
-    .limit(100); // Limit to 100 recent entries for performance
+    .limit(5000); // Limit to 5000 recent entries
 
   if (error) {
     return (
@@ -31,7 +31,7 @@ export default async function AdminHistoryPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Automation History</h1>
-        <p className="text-slate-400">Recent logs of automation executions (Last 100).</p>
+        <p className="text-slate-400">Recent logs of automation executions (Last 5000).</p>
       </div>
 
       <div className="rounded-2xl border border-slate-800 bg-slate-900/40">

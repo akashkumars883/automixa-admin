@@ -18,7 +18,8 @@ export default async function AdminAutomationsPage() {
   const { data: automations, error } = await supabase
     .from("automations")
     .select("id,workspace_id,page_name,page_id,user_id,is_active,created_at")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(5000);
 
   if (error) {
     return (

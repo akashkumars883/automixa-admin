@@ -18,7 +18,7 @@ export default async function AdminAnalyticsPage() {
   const { data: history, error } = await supabase
     .from("automation_history")
     .select("status, created_at, automation_id")
-    .limit(1000); // Last 1000 for realistic calc
+    .limit(5000); // Last 5000 for realistic calc
 
   if (error && error.code !== "42P01") {
     console.error("Error fetching history:", error);
