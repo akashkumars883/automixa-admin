@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Briefcase, Bot, CreditCard, History, LogOut, Users, LineChart, BrainCircuit, FileText, LifeBuoy, Megaphone, Shield } from "lucide-react";
+import { LayoutDashboard, Briefcase, Bot, CreditCard, History, LogOut, Users, LineChart, FileText, LifeBuoy, Megaphone, Shield } from "lucide-react";
 
 export default function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

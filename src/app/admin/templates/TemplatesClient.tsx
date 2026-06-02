@@ -4,8 +4,18 @@ import { useState } from "react";
 import { Plus, Edit2, Trash2 } from "lucide-react";
 import { createTemplate, updateTemplate, deleteTemplate } from "./actions";
 
-export default function TemplatesClient({ initialTemplates }: { initialTemplates: any[] }) {
-  const [templates, setTemplates] = useState(initialTemplates);
+interface Template {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  content: string;
+  is_premium: boolean;
+  is_active: boolean;
+}
+
+export default function TemplatesClient({ initialTemplates }: { initialTemplates: Template[] }) {
+  const [templates, setTemplates] = useState<Template[]>(initialTemplates);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -19,7 +29,7 @@ export default function TemplatesClient({ initialTemplates }: { initialTemplates
     is_active: true,
   });
 
-  const handleOpenModal = (template: any = null) => {
+  const handleOpenModal = (template: Template | null = null) => {
     if (template) {
       setEditingId(template.id);
       setFormData({
@@ -103,7 +113,7 @@ export default function TemplatesClient({ initialTemplates }: { initialTemplates
         ))}
         {templates.length === 0 && (
           <div className="col-span-full py-12 text-center text-slate-500">
-            No templates found. Click "Create Template" to add one.
+            No templates found. Click &quot;Create Template&quot; to add one.
           </div>
         )}
       </div>

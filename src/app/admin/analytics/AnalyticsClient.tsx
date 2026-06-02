@@ -1,7 +1,17 @@
 "use client";
 
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { MessageSquare, MousePointerClick, TrendingUp, Users } from "lucide-react";
+
+interface ConversionItem {
+  name: string;
+  count: number;
+}
+
+interface EngagementItem {
+  name: string;
+  value: number;
+}
 
 export default function AnalyticsClient({ 
   totalMessages,
@@ -10,17 +20,15 @@ export default function AnalyticsClient({
   uniqueLeads,
   conversionData,
   engagementData,
-  messageTimingData
 }: {
   totalMessages: string;
   successRate: string;
   linkClicks: string;
   uniqueLeads: string;
-  conversionData: any[];
-  engagementData: any[];
-  messageTimingData: any[];
+  conversionData: ConversionItem[];
+  engagementData: EngagementItem[];
+  messageTimingData?: unknown[];
 }) {
-  const COLORS = ['#818cf8', '#c084fc', '#34d399', '#f472b6'];
 
   return (
     <div>

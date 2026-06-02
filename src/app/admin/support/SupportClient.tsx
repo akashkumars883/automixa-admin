@@ -3,7 +3,20 @@
 import { useState } from "react";
 import { updateTicketStatus } from "./actions";
 
-export default function SupportClient({ initialTickets }: { initialTickets: any[] }) {
+interface SupportTicket {
+  id: string;
+  user_id: string | null;
+  subject: string;
+  message: string;
+  priority: string;
+  status: string;
+  created_at: string;
+  auth_users?: {
+    email: string;
+  } | null;
+}
+
+export default function SupportClient({ initialTickets }: { initialTickets: SupportTicket[] }) {
   const [tickets, setTickets] = useState(initialTickets);
   const [filter, setFilter] = useState("all");
   const [loadingId, setLoadingId] = useState<string | null>(null);

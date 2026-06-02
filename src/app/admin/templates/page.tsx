@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, getAdminSessionToken } from "@/lib/adminAuth";
 import { createAdminClient } from "@/lib/supabase";
-import { FileText, Plus } from "lucide-react";
+import { FileText } from "lucide-react";
 import TemplatesClient from "./TemplatesClient";
 
 export default async function AdminTemplatesPage() {

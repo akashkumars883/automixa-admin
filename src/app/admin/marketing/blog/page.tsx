@@ -23,7 +23,19 @@ export default async function AdminBlogPage() {
     console.error("Error fetching blogs:", error);
   }
 
+  // Map DB fields to what BlogClient expects
+  // DB has "description" but BlogClient expects "excerpt"
+  // DB has no "status" field, default to "published"
+  const mappedPosts = (posts || []).map((p: Record<string, unknown>) => ({
+    id: p.id as string,
+    title: p.title as string,
+    slug: p.slug as string,
+    excerpt: (p.description as string) || null,
+    content: p.content as string,
+    status: (p.status as string) || "published",
+  }));
+
   return (
-    <BlogClient initialPosts={posts || []} />
+    <BlogClient initialPosts={mappedPosts} />
   );
 }

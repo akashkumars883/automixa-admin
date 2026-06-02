@@ -21,8 +21,17 @@ const quillModules = {
   ]
 };
 
-export default function BlogClient({ initialPosts }: { initialPosts: any[] }) {
-  const [posts, setPosts] = useState(initialPosts);
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  content: string;
+  status: string;
+}
+
+export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] }) {
+  const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -35,7 +44,7 @@ export default function BlogClient({ initialPosts }: { initialPosts: any[] }) {
     status: "draft"
   });
 
-  const handleOpenModal = (post: any = null) => {
+  const handleOpenModal = (post: BlogPost | null = null) => {
     if (post) {
       setEditingId(post.id);
       setFormData({
@@ -142,7 +151,7 @@ export default function BlogClient({ initialPosts }: { initialPosts: any[] }) {
           <div className="col-span-full py-16 text-center border border-white/5 border-dashed rounded-2xl">
             <FileText className="w-12 h-12 text-slate-600 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-white mb-1">No articles yet</h3>
-            <p className="text-slate-400">Click "New Article" to start writing your first blog post.</p>
+             <p className="text-slate-400">Click &quot;New Article&quot; to start writing your first blog post.</p>
           </div>
         )}
       </div>

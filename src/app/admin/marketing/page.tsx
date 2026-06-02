@@ -2,9 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ADMIN_COOKIE_NAME, getAdminSessionToken } from "@/lib/adminAuth";
-import { createAdminClient } from "@/lib/supabase";
 import { Megaphone, PenTool, Globe, DollarSign } from "lucide-react";
-import ModalTrigger from "@/components/admin/ModalTrigger";
 
 export default async function AdminMarketingPage() {
   const cookieStore = await cookies();
@@ -13,8 +11,6 @@ export default async function AdminMarketingPage() {
   if (!token || existing !== token) {
     redirect("/admin/login");
   }
-
-  const supabase = createAdminClient();
 
   // The detailed partner table has been moved to /admin/marketing/affiliates
 

@@ -5,7 +5,12 @@ import { Globe, ArrowLeft, Save } from "lucide-react";
 import { updateSeoSettings } from "./actions";
 import Link from "next/link";
 
-export default function SeoClient({ initialSettings }: { initialSettings: any[] }) {
+interface SeoSetting {
+  setting_key: string;
+  setting_value: string;
+}
+
+export default function SeoClient({ initialSettings }: { initialSettings: SeoSetting[] }) {
   const [loading, setLoading] = useState(false);
   
   // Transform array into a key-value object for easy form binding
@@ -75,7 +80,7 @@ export default function SeoClient({ initialSettings }: { initialSettings: any[] 
               className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition-colors" 
               placeholder="Automate your DMs, Comments, and Stories with AI." 
             />
-            <p className="mt-1 text-xs text-slate-500">Used by search engines to understand your site's purpose.</p>
+            <p className="mt-1 text-xs text-slate-500">Used by search engines to understand your site&apos;s purpose.</p>
           </div>
 
           <div>
@@ -89,6 +94,7 @@ export default function SeoClient({ initialSettings }: { initialSettings: any[] 
             <p className="mt-1 text-xs text-slate-500">The default image shown when links are shared on social media.</p>
             {formData['og_image'] && (
               <div className="mt-4 border border-white/10 rounded-xl overflow-hidden max-w-sm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={formData['og_image']} alt="OG Preview" className="w-full h-auto object-cover opacity-80" onError={(e) => e.currentTarget.style.display = 'none'} />
               </div>
             )}
