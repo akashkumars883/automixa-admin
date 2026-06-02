@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, getAdminSessionToken } from "@/lib/adminAuth";
 import { createAdminClient } from "@/lib/supabase";
+import PricingClient from "./PricingClient";
+import SubscriptionOverride from "./SubscriptionOverride";
 
 export default async function AdminBillingPage() {
   const cookieStore = await cookies();
@@ -31,6 +33,16 @@ export default async function AdminBillingPage() {
     
   if (invError && invError.code !== "42P01") {
     console.error("Error fetching invoices:", invError);
+  }
+
+  // Fetch Pricing Plans
+  const { data: pricingPlans, error: pricingError } = await supabase
+    .from("pricing_plans")
+    .select("*")
+    .order("display_order", { ascending: true });
+
+  if (pricingError && pricingError.code !== "42P01") {
+    console.error("Error fetching pricing plans:", pricingError);
   }
 
   return (
@@ -110,6 +122,12 @@ export default async function AdminBillingPage() {
             </table>
           </div>
         </div>
+        
+        {/* Manual Subscription Override */}
+        <SubscriptionOverride />
+        
+        {/* Dynamic Pricing Manager */}
+        <PricingClient initialPlans={pricingPlans || []} />
       </div>
     </div>
   );

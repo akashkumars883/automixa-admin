@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, getAdminSessionToken } from "@/lib/adminAuth";
 import { createAdminClient } from "@/lib/supabase";
 import ModalTrigger from "@/components/admin/ModalTrigger";
+import ImpersonateButton from "./ImpersonateButton";
+import ExportCSVButton from "@/components/admin/ExportCSVButton";
 
 export default async function AdminUsersPage() {
   const cookieStore = await cookies();
@@ -29,9 +31,12 @@ export default async function AdminUsersPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Users</h1>
-        <p className="mt-1 text-slate-400">Manage all registered Automixa users ({users.length} total).</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Users</h1>
+          <p className="mt-1 text-slate-400">Manage all registered Automixa users ({users.length} total).</p>
+        </div>
+        <ExportCSVButton data={users} filename="automixa_users" />
       </div>
 
       <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 lg:p-6 backdrop-blur-xl shadow-2xl">
@@ -57,7 +62,8 @@ export default async function AdminUsersPage() {
                   <td className="px-4 py-3 text-slate-300">
                     {user.created_at ? new Date(user.created_at).toLocaleString() : "-"}
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right flex items-center justify-end">
+                     <ImpersonateButton email={user.email} />
                      <ModalTrigger
                        buttonText="View Details"
                        title="User Details"

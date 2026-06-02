@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Briefcase, Bot, CreditCard, History, LogOut, Users, LineChart, FileText, LifeBuoy, Megaphone, Shield } from "lucide-react";
+import { LayoutDashboard, Briefcase, Bot, CreditCard, History, LogOut, Users, LineChart, FileText, LifeBuoy, Megaphone, Shield, Settings, Radio } from "lucide-react";
 
 export default function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -22,8 +22,10 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
     { name: "Support", href: "/admin/support", icon: LifeBuoy },
     { name: "Marketing", href: "/admin/marketing", icon: Megaphone },
     { name: "Billing & Plans", href: "/admin/billing", icon: CreditCard },
+    { name: "Broadcasts", href: "/admin/broadcasts", icon: Radio },
     { name: "History", href: "/admin/history", icon: History },
     { name: "Security", href: "/admin/security", icon: Shield },
+    { name: "Global Settings", href: "/admin/settings", icon: Settings },
   ];
 
   async function logout() {
