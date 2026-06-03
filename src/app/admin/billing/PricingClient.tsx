@@ -4,49 +4,41 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { Check, Edit2, Save, X } from "lucide-react";
 
-export default function PricingClient({ initialPlans }) {
+export default function PricingClient({ initialPlans }: { initialPlans?: any[] }) {
   const [plans, setPlans] = useState(initialPlans || []);
-  const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({});
+  const [editingId, setEditingId] = useState<any>(null);
+  const [editForm, setEditForm] = useState<any>({});
   const [loading, setLoading] = useState(false);
 
-  const handleEdit = (plan) => {
+  const handleEdit = (plan: any) => {
     setEditingId(plan.id);
     setEditForm({ ...plan, features: JSON.stringify(plan.features, null, 2) });
   };
 
-  const handleSave = async (id) => {
+  const handleSave = async (id: any) => {
     setLoading(true);
     try {
-      let parsedFeatures = [];
-      try {
-        parsedFeatures = JSON.parse(editForm.features);
-      } catch (e) {
-        alert("Features must be a valid JSON array of strings.");
-        setLoading(false);
-        return;
-      }
-
-      const supabase = createClient();
-      const { error } = await supabase
-        .from("pricing_plans")
-        .update({
-          name: editForm.name,
-          price_inr_monthly: editForm.price_inr_monthly,
-          price_usd_monthly: editForm.price_usd_monthly,
-          price_inr_annual: editForm.price_inr_annual,
-          price_usd_annual: editForm.price_usd_annual,
-          features: parsedFeatures,
-          is_active: editForm.is_active
-        })
-        .eq("id", id);
-
-      if (error) throw error;
-
+      const parsedFeatures = JSON.parse(editForm.features);
+      const updates = {
+        name: editForm.name,
+        price_inr_monthly: editForm.price_inr_monthly,
+        price_usd_monthly: editForm.price_usd_monthly,
+        price_inr_annual: editForm.price_inr_annual,
+        price_usd_annual: editForm.price_usd_annual,
+        features: parsedFeatures,
+        is_active: editForm.is_active,
+      };
+      const res = await fetch('/api/admin/pricing', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, updates }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Failed to update plan');
       setPlans(plans.map(p => p.id === id ? { ...editForm, features: parsedFeatures } : p));
       setEditingId(null);
-    } catch (err) {
-      alert("Failed to update plan: " + err.message);
+    } catch (err: any) {
+      alert('Failed to update plan: ' + (err?.message || String(err)));
     } finally {
       setLoading(false);
     }
@@ -58,7 +50,7 @@ export default function PricingClient({ initialPlans }) {
         <h2 className="text-lg font-semibold text-white">Dynamic Pricing Plans</h2>
         <span className="text-xs text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full">Reflects instantly on main app</span>
       </div>
-      
+
       <div className="overflow-x-auto p-1">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-800 bg-slate-900/50">
@@ -75,29 +67,29 @@ export default function PricingClient({ initialPlans }) {
             {plans?.map((plan) => (
               <tr key={plan.id} className="transition-colors hover:bg-slate-800/50">
                 <td className="px-4 py-3 font-mono text-xs text-slate-400">{plan.plan_id}</td>
-                
+
                 {editingId === plan.id ? (
                   <>
                     <td className="px-4 py-3">
-                      <input type="text" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} />
+                      <input type="text" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200" value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
                     </td>
                     <td className="px-4 py-3 space-y-1">
-                      <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200 text-xs" placeholder="INR" value={editForm.price_inr_monthly} onChange={e => setEditForm({...editForm, price_inr_monthly: parseInt(e.target.value)})} />
-                      <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200 text-xs" placeholder="USD" value={editForm.price_usd_monthly} onChange={e => setEditForm({...editForm, price_usd_monthly: parseInt(e.target.value)})} />
+                      <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200 text-xs" placeholder="INR" value={editForm.price_inr_monthly} onChange={e => setEditForm({ ...editForm, price_inr_monthly: parseInt(e.target.value) })} />
+                      <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200 text-xs" placeholder="USD" value={editForm.price_usd_monthly} onChange={e => setEditForm({ ...editForm, price_usd_monthly: parseInt(e.target.value) })} />
                     </td>
                     <td className="px-4 py-3 space-y-1">
-                      <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200 text-xs" placeholder="INR" value={editForm.price_inr_annual} onChange={e => setEditForm({...editForm, price_inr_annual: parseInt(e.target.value)})} />
-                      <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200 text-xs" placeholder="USD" value={editForm.price_usd_annual} onChange={e => setEditForm({...editForm, price_usd_annual: parseInt(e.target.value)})} />
+                      <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200 text-xs" placeholder="INR" value={editForm.price_inr_annual} onChange={e => setEditForm({ ...editForm, price_inr_annual: parseInt(e.target.value) })} />
+                      <input type="number" className="w-full bg-slate-900 border border-slate-700 rounded p-1 text-slate-200 text-xs" placeholder="USD" value={editForm.price_usd_annual} onChange={e => setEditForm({ ...editForm, price_usd_annual: parseInt(e.target.value) })} />
                     </td>
                     <td className="px-4 py-3">
-                      <select className="bg-slate-900 border border-slate-700 rounded p-1 text-slate-200" value={editForm.is_active} onChange={e => setEditForm({...editForm, is_active: e.target.value === 'true'})}>
+                      <select className="bg-slate-900 border border-slate-700 rounded p-1 text-slate-200" value={editForm.is_active} onChange={e => setEditForm({ ...editForm, is_active: e.target.value === 'true' })}>
                         <option value="true">Active</option>
                         <option value="false">Inactive</option>
                       </select>
                     </td>
                     <td className="px-4 py-3 text-right space-x-2">
-                      <button onClick={() => handleSave(plan.id)} disabled={loading} className="text-emerald-400 hover:text-emerald-300"><Save size={16}/></button>
-                      <button onClick={() => setEditingId(null)} className="text-slate-400 hover:text-slate-300"><X size={16}/></button>
+                      <button onClick={() => handleSave(plan.id)} disabled={loading} className="text-emerald-400 hover:text-emerald-300"><Save size={16} /></button>
+                      <button onClick={() => setEditingId(null)} className="text-slate-400 hover:text-slate-300"><X size={16} /></button>
                     </td>
                   </>
                 ) : (
@@ -111,7 +103,7 @@ export default function PricingClient({ initialPlans }) {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => handleEdit(plan)} className="text-blue-400 hover:text-blue-300"><Edit2 size={16}/></button>
+                      <button onClick={() => handleEdit(plan)} className="text-blue-400 hover:text-blue-300"><Edit2 size={16} /></button>
                     </td>
                   </>
                 )}

@@ -33,19 +33,19 @@ export default function LoginForm() {
   return (
     <form onSubmit={onSubmit} className="mt-6 space-y-4">
       <div>
-        <label className="text-sm text-slate-300">Admin Password</label>
+        <label className="text-sm font-medium text-slate-600">Admin Password</label>
         <input
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           type="password"
-          className="mt-2 w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-slate-600"
+          className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-slate-900 outline-none transition-all duration-200 placeholder-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/10"
           placeholder="Enter password"
           autoFocus
         />
       </div>
 
       {error ? (
-        <div className="rounded-lg border border-red-900 bg-red-950/40 px-3 py-2 text-sm text-red-200">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
         </div>
       ) : null}
@@ -53,10 +53,11 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading || !password}
-        className="w-full rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white disabled:opacity-60"
+        className="active-scale w-full rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white transition-all duration-200 hover:bg-indigo-700 disabled:opacity-60 shadow-lg shadow-indigo-600/10 hover:shadow-indigo-600/20"
       >
         {loading ? "Signing in..." : "Sign in"}
       </button>
     </form>
   );
+
 }

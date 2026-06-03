@@ -4,7 +4,7 @@ import { useState } from "react";
 import { UserCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 
-export default function ImpersonateButton({ email }) {
+export default function ImpersonateButton({ email }: { email?: string }) {
   const [loading, setLoading] = useState(false);
 
   const handleImpersonate = async () => {
@@ -20,7 +20,7 @@ export default function ImpersonateButton({ email }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       });
-      
+
       const data = await res.json();
       if (data.url) {
         // Open the generated link in a new tab
@@ -28,15 +28,15 @@ export default function ImpersonateButton({ email }) {
       } else {
         alert("Failed to generate impersonation link: " + (data.error || "Unknown error"));
       }
-    } catch (err) {
-      alert("Error: " + err.message);
+    } catch (err: any) {
+      alert("Error: " + (err?.message || String(err)));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <button 
+    <button
       onClick={handleImpersonate}
       disabled={loading}
       className="text-xs font-medium text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-emerald-300 mr-3 flex items-center gap-1 inline-flex"

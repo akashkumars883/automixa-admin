@@ -4,17 +4,17 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { Settings2, Save } from "lucide-react";
 
-export default function SettingsClient({ initialSettings }) {
+export default function SettingsClient({ initialSettings }: { initialSettings?: any[] }) {
   const [settings, setSettings] = useState(initialSettings || []);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState<any>(null);
 
-  const handleToggle = async (key, currentValue) => {
+  const handleToggle = async (key: any, currentValue: any) => {
     setLoading(true);
     setMessage(null);
     try {
       const newValue = currentValue === "true" ? "false" : "true";
-      
+
       const supabase = createClient();
       const { error } = await supabase
         .from("global_settings")
@@ -22,10 +22,10 @@ export default function SettingsClient({ initialSettings }) {
         .eq("key", key);
 
       if (error) throw error;
-      
+
       setSettings(settings.map(s => s.key === key ? { ...s, value: newValue } : s));
-    } catch (err) {
-      setMessage({ type: "error", text: "Failed to update setting: " + err.message });
+    } catch (err: any) {
+      setMessage({ type: "error", text: "Failed to update setting: " + (err?.message || String(err)) });
     } finally {
       setLoading(false);
     }

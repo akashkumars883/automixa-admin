@@ -9,9 +9,9 @@ export default function SubscriptionOverride() {
   const [planId, setPlanId] = useState("creator_pro");
   const [status, setStatus] = useState("active");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
 
-  const handleOverride = async (e) => {
+  const handleOverride = async (e: any) => {
     e.preventDefault();
     if (!userId.trim()) return;
 
@@ -19,7 +19,7 @@ export default function SubscriptionOverride() {
     setMessage(null);
     try {
       const supabase = createClient();
-      
+
       // Upsert subscription
       const { error } = await supabase
         .from("subscriptions")
@@ -31,11 +31,11 @@ export default function SubscriptionOverride() {
         }, { onConflict: 'user_id' });
 
       if (error) throw error;
-      
+
       setMessage({ type: "success", text: "Subscription successfully updated!" });
       setUserId("");
-    } catch (err) {
-      setMessage({ type: "error", text: err.message });
+    } catch (err: any) {
+      setMessage({ type: "error", text: err?.message || String(err) });
     } finally {
       setLoading(false);
     }
@@ -63,8 +63,8 @@ export default function SubscriptionOverride() {
       <form onSubmit={handleOverride} className="flex flex-col md:flex-row gap-4 items-end">
         <div className="flex-1 w-full">
           <label className="block text-xs font-medium text-slate-400 mb-1">User ID (UUID)</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             required
             value={userId}
             onChange={e => setUserId(e.target.value)}
@@ -74,7 +74,7 @@ export default function SubscriptionOverride() {
         </div>
         <div className="w-full md:w-48">
           <label className="block text-xs font-medium text-slate-400 mb-1">Plan</label>
-          <select 
+          <select
             value={planId}
             onChange={e => setPlanId(e.target.value)}
             className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-indigo-500"
@@ -86,7 +86,7 @@ export default function SubscriptionOverride() {
         </div>
         <div className="w-full md:w-48">
           <label className="block text-xs font-medium text-slate-400 mb-1">Status</label>
-          <select 
+          <select
             value={status}
             onChange={e => setStatus(e.target.value)}
             className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-indigo-500"
@@ -96,8 +96,8 @@ export default function SubscriptionOverride() {
             <option value="canceled">Canceled</option>
           </select>
         </div>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
           className="w-full md:w-auto px-6 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors h-[42px]"
         >

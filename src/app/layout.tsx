@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${outfit.variable} ${spaceGrotesk.variable}`}>
-      <body className={`min-h-screen bg-slate-950 text-slate-100 ${outfit.className}`}>
+      <body className={`min-h-screen bg-white text-[#09090B] ${outfit.className}`}>
         {children}
       </body>
     </html>

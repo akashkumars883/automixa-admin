@@ -4,17 +4,17 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase";
 import { Megaphone, Trash2, Send } from "lucide-react";
 
-export default function BroadcastsClient({ initialBroadcasts }) {
+export default function BroadcastsClient({ initialBroadcasts }: { initialBroadcasts?: any[] }) {
   const [broadcasts, setBroadcasts] = useState(initialBroadcasts || []);
   const [loading, setLoading] = useState(false);
-  
+
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [type, setType] = useState("info");
   const [link, setLink] = useState("");
-  const [days, setDays] = useState(7);
+  const [days, setDays] = useState("7");
 
-  const handleCreate = async (e) => {
+  const handleCreate = async (e: any) => {
     e.preventDefault();
     if (!title.trim() || !message.trim()) return;
 
@@ -40,21 +40,21 @@ export default function BroadcastsClient({ initialBroadcasts }) {
         .single();
 
       if (error) throw error;
-      
+
       setBroadcasts([data, ...broadcasts]);
       setTitle("");
       setMessage("");
       setLink("");
-    } catch (err) {
-      alert("Failed to create broadcast: " + err.message);
+    } catch (err: any) {
+      alert("Failed to create broadcast: " + (err?.message || String(err)));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: any) => {
     if (!confirm("Delete this broadcast?")) return;
-    
+
     setLoading(true);
     try {
       const supabase = createClient();
@@ -65,8 +65,8 @@ export default function BroadcastsClient({ initialBroadcasts }) {
 
       if (error) throw error;
       setBroadcasts(broadcasts.filter(b => b.id !== id));
-    } catch (err) {
-      alert("Failed to delete: " + err.message);
+    } catch (err: any) {
+      alert("Failed to delete: " + (err?.message || String(err)));
     } finally {
       setLoading(false);
     }
@@ -79,11 +79,11 @@ export default function BroadcastsClient({ initialBroadcasts }) {
           <Megaphone size={18} className="text-indigo-400" />
           New Broadcast
         </h2>
-        
+
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-1">Title</label>
-            <input 
+            <input
               type="text" required value={title} onChange={e => setTitle(e.target.value)}
               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none"
               placeholder="e.g. Scheduled Maintenance"
@@ -91,7 +91,7 @@ export default function BroadcastsClient({ initialBroadcasts }) {
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-1">Message</label>
-            <textarea 
+            <textarea
               required value={message} onChange={e => setMessage(e.target.value)} rows={3}
               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none resize-none"
               placeholder="e.g. Automixa will be down for 30 mins..."
@@ -108,7 +108,7 @@ export default function BroadcastsClient({ initialBroadcasts }) {
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-1">Action Link (Optional)</label>
-            <input 
+            <input
               type="text" value={link} onChange={e => setLink(e.target.value)}
               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none"
               placeholder="https://..."
@@ -116,13 +116,13 @@ export default function BroadcastsClient({ initialBroadcasts }) {
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-1">Active Duration (Days)</label>
-            <input 
+            <input
               type="number" min="1" max="30" value={days} onChange={e => setDays(e.target.value)}
               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 outline-none"
             />
           </div>
-          
-          <button 
+
+          <button
             type="submit" disabled={loading}
             className="w-full mt-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2"
           >
@@ -134,12 +134,11 @@ export default function BroadcastsClient({ initialBroadcasts }) {
       <div className="lg:col-span-2 space-y-4">
         {broadcasts.map(b => (
           <div key={b.id} className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 backdrop-blur-xl shadow-lg relative flex items-start gap-4">
-            <div className={`p-2 rounded-full mt-1 ${
-              b.type === 'error' ? 'bg-red-500/10 text-red-400' :
-              b.type === 'warning' ? 'bg-amber-500/10 text-amber-400' :
-              b.type === 'success' ? 'bg-emerald-500/10 text-emerald-400' :
-              'bg-blue-500/10 text-blue-400'
-            }`}>
+            <div className={`p-2 rounded-full mt-1 ${b.type === 'error' ? 'bg-red-500/10 text-red-400' :
+                b.type === 'warning' ? 'bg-amber-500/10 text-amber-400' :
+                  b.type === 'success' ? 'bg-emerald-500/10 text-emerald-400' :
+                    'bg-blue-500/10 text-blue-400'
+              }`}>
               <Megaphone size={16} />
             </div>
             <div className="flex-1">
