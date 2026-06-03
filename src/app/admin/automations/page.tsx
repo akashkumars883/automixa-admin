@@ -15,19 +15,67 @@ export default async function AdminAutomationsPage() {
 
   const supabase = createAdminClient();
 
-  const { data: automations, error } = await supabase
-    .from("automations")
-    .select("id,workspace_id,page_name,page_id,user_id,is_active,created_at")
-    .order("created_at", { ascending: false })
-    .limit(5000);
+  const [
+    automationsRes,
+    automationsCount,
+    historyTotal,
+    historyFailed,
+    historySuccess,
+    historyInteracted,
+    subscriptionsRes
+  ] = await Promise.all([
+    supabase
+      .from("automations")
+      .select("id,workspace_id,page_name,page_id,user_id,is_active,created_at")
+      .order("created_at", { ascending: false })
+      .limit(5000),
+    supabase.from("automations").select("id", { count: "exact", head: true }),
+    supabase.from("automation_history").select("id", { count: "exact", head: true }),
+    supabase.from("automation_history").select("id", { count: "exact", head: true }).eq("status", "FAILED"),
+    supabase.from("automation_history").select("id", { count: "exact", head: true }).eq("status", "SUCCESS"),
+    supabase.from("automation_history").select("id", { count: "exact", head: true }).eq("status", "INTERACTED"),
+    supabase.from("subscriptions").select("plan_id").eq("status", "active")
+  ]);
 
-  if (error) {
+  if (automationsRes.error) {
     return (
       <div className="mt-6 rounded-lg border border-red-900 bg-red-950/40 px-3 py-2 text-sm text-red-200">
-        Failed to load automations. {error.message}
+        Failed to load automations. {automationsRes.error.message}
       </div>
     );
   }
+
+  const automations = automationsRes.data || [];
+  
+  const totalLogs = historyTotal.count || 0;
+  const failedLogs = historyFailed.count || 0;
+  const successLogs = historySuccess.count || 0;
+  const interactedLogs = historyInteracted.count || 0;
+
+  // Calculate Webhook Health percentage
+  const successRate = totalLogs > 0 ? ((totalLogs - failedLogs) / totalLogs) * 100 : 100;
+  const webhookHealth = successRate.toFixed(1);
+
+  // Calculate API Limits Capacity based on active subscriptions
+  const activeSubs = subscriptionsRes.data || [];
+  let totalCapacity = 0;
+  for (const sub of activeSubs) {
+    const planId = (sub.plan_id || "").toLowerCase();
+    if (planId.includes("viral") || planId.includes("agency") || planId.includes("scale")) {
+      totalCapacity += 50000;
+    } else if (planId.includes("creator") || planId.includes("pro")) {
+      totalCapacity += 15000;
+    } else {
+      totalCapacity += 1000;
+    }
+  }
+
+  const totalAutomations = automationsCount.count || 0;
+  if (totalCapacity < totalAutomations * 1000) {
+    totalCapacity = totalAutomations * 1000;
+  }
+
+  const limitsUsedPercent = totalCapacity > 0 ? Math.min(100, Math.round((successLogs / totalCapacity) * 100)) : 0;
 
   return (
     <div>
@@ -44,10 +92,10 @@ export default async function AdminAutomationsPage() {
           </div>
           <p className="text-sm font-medium text-slate-400">Meta Webhook Health</p>
           <div className="mt-2 flex items-center gap-2">
-            <span className="text-2xl font-bold text-white">99.9%</span>
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="text-2xl font-bold text-white">{webhookHealth}%</span>
+            <span className={`flex h-2 w-2 rounded-full ${successRate > 95 ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500 animate-pulse'}`}></span>
           </div>
-          <p className="mt-1 text-xs text-emerald-400">All systems operational</p>
+          <p className="mt-1 text-xs text-emerald-400">{successRate > 95 ? "All systems operational" : "Partial degradation detected"}</p>
         </div>
 
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden">
@@ -56,10 +104,10 @@ export default async function AdminAutomationsPage() {
           </div>
           <p className="text-sm font-medium text-slate-400">API Limits Used</p>
           <div className="mt-2">
-            <span className="text-2xl font-bold text-white">42%</span>
+            <span className="text-2xl font-bold text-white">{limitsUsedPercent}%</span>
           </div>
-          <div className="mt-2 w-full bg-slate-800 rounded-full h-1.5">
-            <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: '42%' }}></div>
+          <div className="mt-2 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${limitsUsedPercent}%` }}></div>
           </div>
         </div>
 
@@ -69,9 +117,9 @@ export default async function AdminAutomationsPage() {
           </div>
           <p className="text-sm font-medium text-slate-400">Failed Webhooks</p>
           <div className="mt-2">
-            <span className="text-2xl font-bold text-white">12</span>
+            <span className="text-2xl font-bold text-white">{failedLogs}</span>
           </div>
-          <p className="mt-1 text-xs text-amber-400">Pending retry in queue</p>
+          <p className="mt-1 text-xs text-amber-400">{failedLogs > 0 ? "Check history logs for details" : "No failed webhooks logged"}</p>
         </div>
 
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden">
@@ -80,9 +128,9 @@ export default async function AdminAutomationsPage() {
           </div>
           <p className="text-sm font-medium text-slate-400">Messages Queue</p>
           <div className="mt-2">
-            <span className="text-2xl font-bold text-white">0</span>
+            <span className="text-2xl font-bold text-white">{interactedLogs}</span>
           </div>
-          <p className="mt-1 text-xs text-purple-400">Queue is empty</p>
+          <p className="mt-1 text-xs text-purple-400">{interactedLogs > 0 ? `${interactedLogs} items processing` : "Queue is empty"}</p>
         </div>
       </div>
 
