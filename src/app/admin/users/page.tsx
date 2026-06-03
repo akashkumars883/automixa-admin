@@ -45,6 +45,7 @@ export default async function AdminUsersPage() {
             <thead className="border-b border-slate-800 bg-slate-900/50">
               <tr className="text-slate-300">
                 <th className="px-4 py-3 font-medium">Email</th>
+                <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">ID</th>
                 <th className="px-4 py-3 font-medium">Last Sign In</th>
                 <th className="px-4 py-3 font-medium">Created At</th>
@@ -52,36 +53,40 @@ export default async function AdminUsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">
-              {users.map((user) => (
-                <tr key={user.id} className="transition-colors hover:bg-slate-800/50 group">
-                  <td className="px-4 py-3 font-medium text-slate-200">{user.email || "No email"}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-400">{user.id}</td>
-                  <td className="px-4 py-3 text-slate-300">
-                    {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : "Never"}
-                  </td>
-                  <td className="px-4 py-3 text-slate-300">
-                    {user.created_at ? new Date(user.created_at).toLocaleString() : "-"}
-                  </td>
-                  <td className="px-4 py-3 text-right flex items-center justify-end">
-                     <ImpersonateButton email={user.email} />
-                     <ModalTrigger
-                       buttonText="View Details"
-                       title="User Details"
-                       message={`Viewing full profile and activity logs for user ${user.id}.`}
-                       className="text-xs font-medium text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-indigo-300 mr-3"
-                     />
-                     <ModalTrigger
-                       buttonText="Suspend"
-                       title="Suspend User"
-                       message={`Are you sure you want to suspend user ${user.email}? They will immediately lose access to their account.`}
-                       className="text-xs font-medium text-red-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-300"
-                     />
-                  </td>
-                </tr>
-              ))}
+              {users.map((user) => {
+                const name = user.user_metadata?.full_name || user.user_metadata?.name || "—";
+                return (
+                  <tr key={user.id} className="transition-colors hover:bg-slate-800/50 group">
+                    <td className="px-4 py-3 font-medium text-slate-200">{user.email || "No email"}</td>
+                    <td className="px-4 py-3 text-slate-200">{name}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-400">{user.id}</td>
+                    <td className="px-4 py-3 text-slate-300">
+                      {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : "Never"}
+                    </td>
+                    <td className="px-4 py-3 text-slate-300">
+                      {user.created_at ? new Date(user.created_at).toLocaleString() : "-"}
+                    </td>
+                    <td className="px-4 py-3 text-right flex items-center justify-end">
+                       <ImpersonateButton email={user.email} />
+                       <ModalTrigger
+                         buttonText="View Details"
+                         title="User Details"
+                         message={`Viewing full profile and activity logs for user ${user.id}. Name: ${name}`}
+                         className="text-xs font-medium text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-indigo-300 mr-3"
+                       />
+                       <ModalTrigger
+                         buttonText="Suspend"
+                         title="Suspend User"
+                         message={`Are you sure you want to suspend user ${user.email} (${name})? They will immediately lose access to their account.`}
+                         className="text-xs font-medium text-red-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-300"
+                       />
+                    </td>
+                  </tr>
+                );
+              })}
               {!users.length && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
                     No users found.
                   </td>
                 </tr>

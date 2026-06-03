@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { Clock, Calendar } from "lucide-react";
 
 type RecentWorkspace = {
   id: string;
@@ -36,6 +37,16 @@ type OverviewData = {
 };
 
 export default function OverviewView({ data }: { data: OverviewData }) {
+  const [currentDateTime, setCurrentDateTime] = useState<string>("");
+
+  useEffect(() => {
+    setCurrentDateTime(new Date().toLocaleString());
+    const interval = setInterval(() => {
+      setCurrentDateTime(new Date().toLocaleString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const subscriptionRows = useMemo(() => {
     const summary = data?.subscriptions?.summary || {};
     return Object.entries(summary)
@@ -45,9 +56,24 @@ export default function OverviewView({ data }: { data: OverviewData }) {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Admin Overview</h1>
-        <p className="mt-1 text-slate-400">Live metrics from Supabase.</p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">Admin Overview</h1>
+          <p className="mt-1 text-slate-400">Live metrics from Supabase.</p>
+        </div>
+        {currentDateTime && (
+          <div className="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-white px-4 py-2.5 shadow-sm transition-all hover:shadow-md animate-in fade-in duration-300">
+            <Calendar className="h-4 w-4 text-indigo-500 shrink-0" />
+            <span className="text-xs font-semibold text-slate-600 tracking-wide font-mono">
+              {currentDateTime.split(',')[0]}
+            </span>
+            <div className="h-3.5 w-[1px] bg-slate-200" />
+            <Clock className="h-4 w-4 text-indigo-500 shrink-0 animate-pulse" />
+            <span className="text-xs font-semibold text-slate-700 font-mono">
+              {currentDateTime.split(',')[1]?.trim()}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
