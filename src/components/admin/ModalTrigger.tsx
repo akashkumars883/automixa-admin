@@ -38,7 +38,7 @@ export default function ModalTrigger({
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-sm text-slate-600 leading-relaxed mb-6">{message}</p>
+            <p className="text-sm text-slate-600 leading-relaxed mb-6 whitespace-pre-line">{message}</p>
             <div className="flex justify-end gap-3">
               <button onClick={() => setIsOpen(false)} className="px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors">
                 Cancel

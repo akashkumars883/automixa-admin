@@ -59,7 +59,11 @@ export default async function AdminUsersPage() {
                   <tr key={user.id} className="transition-colors hover:bg-slate-800/50 group">
                     <td className="px-4 py-3 font-medium text-slate-200">{user.email || "No email"}</td>
                     <td className="px-4 py-3 text-slate-200">{name}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-slate-400">{user.id}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-400">
+                      <div className="max-w-[120px] truncate" title={user.id}>
+                        {user.id}
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-slate-300">
                       {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : "Never"}
                     </td>
@@ -71,7 +75,7 @@ export default async function AdminUsersPage() {
                        <ModalTrigger
                          buttonText="View Details"
                          title="User Details"
-                         message={`Viewing full profile and activity logs for user ${user.id}. Name: ${name}`}
+                         message={`ID: ${user.id}\nEmail: ${user.email || "No email"}\nName: ${name}\nLast Sign In: ${user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString() : "Never"}\nCreated At: ${user.created_at ? new Date(user.created_at).toLocaleString() : "-"}`}
                          className="text-xs font-medium text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-indigo-300 mr-3"
                        />
                        <ModalTrigger

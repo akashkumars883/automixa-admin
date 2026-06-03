@@ -21,9 +21,8 @@ export async function POST(req: Request) {
     const supabase = createAdminClient();
     
     // Generate a magic link for the user that redirects to the dashboard
-    // We assume the main app runs on localhost:3000 in dev or automixa.in in prod
-    const isDev = process.env.NODE_ENV === "development";
-    const redirectUrl = isDev ? "http://localhost:3000/dashboard" : "https://automixa.in/dashboard";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const redirectUrl = `${appUrl.replace(/\/+$/, "")}/dashboard`;
 
     const { data, error } = await supabase.auth.admin.generateLink({
       type: "magiclink",
@@ -36,11 +35,23 @@ export async function POST(req: Request) {
     if (error) throw error;
 
     // The generated link usually points to the Supabase Auth endpoint
-    // It looks like: https://[project].supabase.co/auth/v1/verify?token=...
-    // When the admin clicks it, they will be authenticated as the user and redirected to the main app dashboard
     const url = data?.properties?.action_link;
 
-    return NextResponse.json({ url });
+    // Check if the redirect URL was rewritten by Supabase due to allowlist config
+    let warning: string | null = null;
+    if (url) {
+      try {
+        const parsedUrl = new URL(url);
+        const actualRedirect = parsedUrl.searchParams.get("redirect_to");
+        if (actualRedirect && actualRedirect !== redirectUrl) {
+          warning = `The redirect URL '${redirectUrl}' is not in the allowed Redirect URLs list in your Supabase Dashboard (Authentication > URL Configuration). Supabase fell back to '${actualRedirect}'.`;
+        }
+      } catch (err) {
+        console.error("Failed to parse action_link URL:", err);
+      }
+    }
+
+    return NextResponse.json({ url, warning });
   } catch (error: any) {
     console.error("Impersonation error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

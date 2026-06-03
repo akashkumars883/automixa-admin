@@ -23,6 +23,9 @@ export default function ImpersonateButton({ email }: { email?: string }) {
 
       const data = await res.json();
       if (data.url) {
+        if (data.warning) {
+          alert(`Warning: ${data.warning}\n\nWe will open the fallback link. To resolve this for local testing, add 'http://localhost:3000/dashboard' to the allowed Redirect URLs in your Supabase Auth URL Configuration.`);
+        }
         // Open the generated link in a new tab
         window.open(data.url, "_blank");
       } else {
