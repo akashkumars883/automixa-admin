@@ -34,6 +34,41 @@ const quillModules = {
         }
       }
     }
+  },
+  clipboard: {
+    matchVisual: false,
+    matchers: [
+      [1, function (node: any, delta: any) {
+        delta.ops.forEach((op: any) => {
+          if (op.attributes) {
+            if (op.attributes.background) {
+              const bg = String(op.attributes.background).toLowerCase().replace(/\s+/g, '');
+              if (
+                bg === '#000000' ||
+                bg === 'black' ||
+                bg === 'rgb(0,0,0)' ||
+                bg === 'rgb(9,9,11)' ||
+                bg === '#09090b'
+              ) {
+                delete op.attributes.background;
+                if (op.attributes.color) {
+                  const color = String(op.attributes.color).toLowerCase().replace(/\s+/g, '');
+                  if (
+                    color === '#ffffff' ||
+                    color === 'white' ||
+                    color === 'rgb(255,255,255)' ||
+                    color === 'rgb(220,220,220)'
+                  ) {
+                    delete op.attributes.color;
+                  }
+                }
+              }
+            }
+          }
+        });
+        return delta;
+      }]
+    ]
   }
 };
 
@@ -206,7 +241,7 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] 
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-white z-[100] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-white z-[100] overflow-hidden flex flex-col blog-editor-modal" style={{ colorScheme: "light" }}>
           {/* Top Navbar for Editor */}
           <div className="h-16 border-b border-slate-200 flex items-center justify-between px-6 shrink-0 bg-slate-50">
             <div className="flex items-center gap-4">
@@ -232,6 +267,34 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] 
               .ql-snow.ql-toolbar button:hover .ql-fill, .ql-snow .ql-toolbar button.ql-active .ql-fill { fill: #d946ef !important; }
               .ql-editor blockquote { border-left: 4px solid #d946ef; padding-left: 1rem; color: #64748b; font-style: italic; }
               .ql-editor a { color: #d946ef; }
+
+              /* Reset admin-right-side overrides for the editor modal */
+              .blog-editor-modal h1,
+              .blog-editor-modal h2,
+              .blog-editor-modal h3,
+              .blog-editor-modal h4,
+              .blog-editor-modal h5,
+              .blog-editor-modal h6 {
+                color: #0f172a !important;
+              }
+              .blog-editor-modal p,
+              .blog-editor-modal span,
+              .blog-editor-modal li {
+                color: #1e293b !important;
+              }
+              /* Strip pasted dark background colors and reset text colors */
+              .ql-editor [style*="background-color: rgb(9, 9, 11)"],
+              .ql-editor [style*="background-color: rgb(9,9,11)"],
+              .ql-editor [style*="background-color: rgb(0, 0, 0)"],
+              .ql-editor [style*="background-color: rgb(0,0,0)"],
+              .ql-editor [style*="background-color: black"],
+              .ql-editor [style*="background-color: #000000"],
+              .ql-editor [style*="background-color: #000"],
+              .ql-editor [style*="background-color: #09090b"],
+              .ql-editor [style*="background-color: #09090B"] {
+                background-color: transparent !important;
+                color: inherit !important;
+              }
             `}</style>
 
             <div className="flex items-center gap-3">
