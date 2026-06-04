@@ -33,6 +33,9 @@ export default async function AdminBlogPage() {
     excerpt: (p.description as string) || null,
     content: p.content as string,
     status: (p.status as string) || "published",
+    image: (p.image as string) || "",
+    category: (p.category as string) || "General",
+    author: (p.author as string) || "Automixa Team",
   }));
 
   return (

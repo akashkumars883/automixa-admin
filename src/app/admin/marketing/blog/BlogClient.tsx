@@ -10,15 +10,31 @@ import "react-quill-new/dist/quill.snow.css";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 const quillModules = {
-  toolbar: [
-    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-    [{ 'align': [] }],
-    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-    [{ 'color': [] }, { 'background': [] }],
-    ['link', 'image', 'video'],
-    ['clean']
-  ]
+  toolbar: {
+    container: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'align': [] }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['link', 'image', 'video'],
+      ['clean']
+    ],
+    handlers: {
+      image: function (this: any) {
+        const url = prompt('Enter Image URL:');
+        if (url) {
+          const quill = this.quill;
+          const range = quill.getSelection();
+          if (range) {
+            quill.insertEmbed(range.index, 'image', url);
+          } else {
+            quill.insertEmbed(0, 'image', url);
+          }
+        }
+      }
+    }
+  }
 };
 
 interface BlogPost {
@@ -28,6 +44,9 @@ interface BlogPost {
   excerpt?: string | null;
   content: string;
   status: string;
+  image?: string;
+  category?: string;
+  author?: string;
 }
 
 export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] }) {
@@ -41,7 +60,10 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] 
     slug: "",
     excerpt: "",
     content: "",
-    status: "draft"
+    status: "draft",
+    image: "",
+    category: "General",
+    author: "Automixa Team"
   });
 
   const handleOpenModal = (post: BlogPost | null = null) => {
@@ -52,11 +74,23 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] 
         slug: post.slug,
         excerpt: post.excerpt || "",
         content: post.content,
-        status: post.status
+        status: post.status,
+        image: post.image || "",
+        category: post.category || "General",
+        author: post.author || "Automixa Team"
       });
     } else {
       setEditingId(null);
-      setFormData({ title: "", slug: "", excerpt: "", content: "", status: "draft" });
+      setFormData({
+        title: "",
+        slug: "",
+        excerpt: "",
+        content: "",
+        status: "draft",
+        image: "",
+        category: "General",
+        author: "Automixa Team"
+      });
     }
     setIsModalOpen(true);
   };
@@ -127,23 +161,38 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] 
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map((post) => (
-          <div key={post.id} className="border border-white/5 bg-white/[0.02] rounded-2xl p-6 hover:border-white/10 transition-colors shadow-xl group">
-            <div className="flex justify-between items-start mb-4">
-              <span className={`px-2 py-1 text-[10px] uppercase tracking-wider rounded font-bold ${
-                post.status === 'published' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-              }`}>
-                {post.status}
-              </span>
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleOpenModal(post)} className="p-1.5 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
-                <button onClick={() => handleDelete(post.id)} className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+          <div key={post.id} className="border border-white/5 bg-white/[0.02] rounded-2xl p-6 hover:border-white/10 transition-colors shadow-xl group flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-start mb-4">
+                <span className={`px-2 py-1 text-[10px] uppercase tracking-wider rounded font-bold ${
+                  post.status === 'published' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
+                }`}>
+                  {post.status}
+                </span>
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => handleOpenModal(post)} className="p-1.5 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                  <button onClick={() => handleDelete(post.id)} className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                </div>
               </div>
+              {post.image && (
+                <div className="rounded-lg overflow-hidden border border-white/5 aspect-[16/9] mb-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+                </div>
+              )}
+              <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">{post.title}</h3>
+              <p className="text-sm text-slate-400 mb-4 line-clamp-3">{post.excerpt || post.content.replace(/<[^>]*>/g, '')}</p>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">{post.title}</h3>
-            <p className="text-sm text-slate-400 mb-4 line-clamp-3">{post.excerpt || post.content}</p>
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-              <Globe className="w-3.5 h-3.5" />
-              /{post.slug}
+            <div className="flex items-center justify-between text-xs font-medium text-slate-500 pt-2 border-t border-white/5">
+              <span className="flex items-center gap-1">
+                <Globe className="w-3.5 h-3.5" />
+                /{post.slug}
+              </span>
+              {post.category && (
+                <span className="px-2 py-0.5 bg-white/5 rounded text-[10px] uppercase tracking-wider text-fuchsia-400">
+                  {post.category}
+                </span>
+              )}
             </div>
           </div>
         ))}
@@ -172,8 +221,8 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] 
             {/* Raw CSS to style Quill editor for premium light mode */}
             <style>{`
               .ql-toolbar.ql-snow { border: none !important; border-bottom: 1px solid rgba(0,0,0,0.06) !important; background: rgba(255,255,255,0.95) !important; backdrop-filter: blur(10px); border-radius: 12px 12px 0 0 !important; padding: 12px !important; z-index: 10; }
-              .ql-container.ql-snow { border: none !important; font-size: 16px; font-family: inherit; flex: 1; overflow-y: auto; }
-              .ql-editor { min-height: 100%; padding: 24px; color: #1e293b; }
+              .ql-container.ql-snow { border: none !important; font-size: 16px; font-family: inherit; flex: 1; overflow-y: auto; background-color: #ffffff !important; }
+              .ql-editor { min-height: 100%; padding: 24px; color: #1e293b !important; background-color: #ffffff !important; }
               .ql-snow .ql-stroke { stroke: #475569 !important; }
               .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: #475569 !important; }
               .ql-snow .ql-picker { color: #475569 !important; }
@@ -229,6 +278,33 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPost[] 
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">URL Slug</label>
                   <input required value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 font-mono focus:outline-none focus:border-fuchsia-500 transition-colors" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Cover Image URL</label>
+                  <input type="url" value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} placeholder="https://images.unsplash.com/..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-fuchsia-500 transition-colors" />
+                  {formData.image && (
+                    <div className="mt-2 rounded-lg overflow-hidden border border-slate-200 aspect-[16/9] relative bg-slate-50">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={formData.image} alt="Cover Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Category</label>
+                  <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-fuchsia-500 transition-colors">
+                    <option value="General">General</option>
+                    <option value="Instagram Automation">Instagram Automation</option>
+                    <option value="Marketing Tips">Marketing Tips</option>
+                    <option value="Product Updates">Product Updates</option>
+                    <option value="Creator Growth">Creator Growth</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Author Name</label>
+                  <input type="text" value={formData.author} onChange={e => setFormData({...formData, author: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-fuchsia-500 transition-colors" />
                 </div>
 
                 <div>
