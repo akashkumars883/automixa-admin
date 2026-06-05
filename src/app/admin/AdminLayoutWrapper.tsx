@@ -4,7 +4,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
-import { LayoutDashboard, Briefcase, Bot, CreditCard, History, LogOut, Users, LineChart, FileText, LifeBuoy, Megaphone, Shield, Settings, Radio, Menu, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Briefcase, Bot, CreditCard, History, LogOut, Users, LineChart, FileText, LifeBuoy, Megaphone, Shield, Settings, Radio, Menu, ChevronLeft, ChevronRight, Mail } from "lucide-react";
 
 export default function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -25,6 +25,7 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
     { name: "Marketing", href: "/admin/marketing", icon: Megaphone },
     { name: "Billing & Plans", href: "/admin/billing", icon: CreditCard },
     { name: "Broadcasts", href: "/admin/broadcasts", icon: Radio },
+    { name: "Onboarding Emails", href: "/admin/onboarding", icon: Mail },
     { name: "History", href: "/admin/history", icon: History },
     { name: "Security", href: "/admin/security", icon: Shield },
     { name: "Global Settings", href: "/admin/settings", icon: Settings },
