@@ -4,6 +4,7 @@ import { ADMIN_COOKIE_NAME, getAdminSessionToken } from "@/lib/adminAuth";
 import { createAdminClient } from "@/lib/supabase";
 import PricingClient from "./PricingClient";
 import SubscriptionOverride from "./SubscriptionOverride";
+import ManualPaymentsManager from "./ManualPaymentsManager";
 
 export default async function AdminBillingPage() {
   const cookieStore = await cookies();
@@ -43,6 +44,17 @@ export default async function AdminBillingPage() {
 
   if (pricingError && pricingError.code !== "42P01") {
     console.error("Error fetching pricing plans:", pricingError);
+  }
+
+  // Fetch Pending Manual Payments
+  const { data: manualPayments, error: manualError } = await supabase
+    .from("manual_payments")
+    .select("*")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+
+  if (manualError && manualError.code !== "42P01") {
+    console.error("Error fetching manual payments:", manualError);
   }
 
   return (
@@ -122,6 +134,11 @@ export default async function AdminBillingPage() {
             </table>
           </div>
         </div>
+        
+        {/* Pending Manual Payments Manager */}
+        {manualPayments && manualPayments.length > 0 && (
+          <ManualPaymentsManager initialPayments={manualPayments} />
+        )}
         
         {/* Manual Subscription Override */}
         <SubscriptionOverride />
